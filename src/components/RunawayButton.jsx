@@ -4,63 +4,73 @@ function RunawayButton() {
   const buttonRef = useRef(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
 
-  useEffect(() => {
-    function handleMouseMove(event) {
-      const button = buttonRef.current;
+  function moveButtonAwayFromPointer(pointerX, pointerY) {
+    const button = buttonRef.current;
 
-      if (!button) return;
+    if (!button) return;
 
-      const rect = button.getBoundingClientRect();
+    const rect = button.getBoundingClientRect();
 
-      const buttonCenterX = rect.left + rect.width / 2;
-      const buttonCenterY = rect.top + rect.height / 2;
+    const buttonCenterX = rect.left + rect.width / 2;
+    const buttonCenterY = rect.top + rect.height / 2;
 
-      const distanceX = buttonCenterX - event.clientX;
-      const distanceY = buttonCenterY - event.clientY;
+    const distanceX = buttonCenterX - pointerX;
+    const distanceY = buttonCenterY - pointerY;
 
-      const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-      const dangerZone = 150;
+    const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
+    const dangerZone = 170;
 
-      if (distance < dangerZone) {
-        const movePower = 95;
-        const safeDistance = distance || 1;
+    if (distance > dangerZone) return;
 
-        const moveX = (distanceX / safeDistance) * movePower;
-        const moveY = (distanceY / safeDistance) * movePower;
+    const safeDistance = distance || 1;
+    const movePower = window.innerWidth <= 640 ? 85 : 115;
 
-        setPosition((currentPosition) => {
-          const nextX = currentPosition.x + moveX;
-          const nextY = currentPosition.y + moveY;
+    const moveX = (distanceX / safeDistance) * movePower;
+    const moveY = (distanceY / safeDistance) * movePower;
 
-          return {
-            x: Math.max(-230, Math.min(230, nextX)),
-            y: Math.max(-180, Math.min(180, nextY)),
-          };
-        });
-      }
-    }
+    setPosition((currentPosition) => {
+      const maxX = Math.min(window.innerWidth * 0.28, 250);
+      const maxY = Math.min(window.innerHeight * 0.22, 190);
 
-    window.addEventListener("mousemove", handleMouseMove);
+      const nextX = currentPosition.x + moveX;
+      const nextY = currentPosition.y + moveY;
 
-    return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-    };
-  }, []);
-
-  function handleNoClick(event) {
-    event.preventDefault();
-
-    setPosition({
-      x: Math.random() * 360 - 180,
-      y: Math.random() * 260 - 130,
+      return {
+        x: Math.max(-maxX, Math.min(maxX, nextX)),
+        y: Math.max(-maxY, Math.min(maxY, nextY)),
+      };
     });
   }
+
+  function moveRandomly() {
+    const maxX = Math.min(window.innerWidth * 0.28, 230);
+    const maxY = Math.min(window.innerHeight * 0.22, 180);
+
+    setPosition({
+      x: Math.random() * maxX * 2 - maxX,
+      y: Math.random() * maxY * 2 - maxY,
+    });
+  }
+
+  useEffect(() => {
+    function handlePointerMove(event) {
+      moveButtonAwayFromPointer(event.clientX, event.clientY);
+    }
+
+    window.addEventListener("pointermove", handlePointerMove);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+    };
+  }, []);
 
   return (
     <button
       ref={buttonRef}
       className="main-button no-button"
-      onClick={handleNoClick}
+      type="button"
+      onClick={moveRandomly}
+      onPointerDown={moveRandomly}
       style={{
         transform: `translate(${position.x}px, ${position.y}px)`,
       }}
