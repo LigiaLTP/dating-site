@@ -48,6 +48,10 @@ function FinalPage({ selectedDate, selectedTime, selectedFood }) {
             Date: <strong>{selectedDate}</strong>
           </p>
 
+           <p>
+            Time: <strong>{selectedTime}</strong>
+          </p>
+
           <p>
             Food mood: <strong>{selectedFood}</strong>
           </p>

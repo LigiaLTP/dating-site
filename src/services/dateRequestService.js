@@ -14,19 +14,4 @@ export async function saveDateRequest({
   if (error) {
     throw new Error(error.message);
   }
-
-  const { error: functionError } = await supabase.functions.invoke(
-    "notify-date-request",
-    {
-      body: {
-        selectedDate,
-        selectedTime,
-        selectedFood,
-      },
-    }
-  );
-
-  if (functionError) {
-    throw new Error(functionError.message);
-  }
 }
